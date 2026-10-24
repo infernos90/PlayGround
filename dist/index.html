@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#05070a" />
+  <title>BREACH POINT — Tactical FPS</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2305070a'/%3E%3Cpath d='M16 3 27 9.5v13L16 29 5 22.5v-13z' fill='none' stroke='%23ff7a1a' stroke-width='2.4'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23ff7a1a'/%3E%3C/svg%3E" />
+  <script type="module" crossorigin src="/assets/index-CyaLDQWF.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-TMe3dbdg.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="viewport"></canvas>
+
+    <div id="hud" class="hidden">
+      <div class="vignette"></div>
+      <div id="damage-flash"></div>
+      <div id="damage-arcs">
+        <span class="arc arc-0"></span><span class="arc arc-1"></span><span class="arc arc-2"></span><span class="arc arc-3"></span>
+      </div>
+
+      <header id="topbar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <div>
+            <div class="brand-name">BREACH POINT</div>
+            <div class="brand-sub">OPERATION NIGHTFALL</div>
+          </div>
+        </div>
+        <div class="objective">
+          <span class="obj-label">OBJECTIVE</span>
+          <span class="obj-value">HOLD THE COMPOUND</span>
+        </div>
+        <div class="wave-block">
+          <div class="wave-label">WAVE</div>
+          <div id="wave-value">01</div>
+        </div>
+      </header>
+
+      <div id="crosshair">
+        <span class="ch ch-t"></span><span class="ch ch-b"></span>
+        <span class="ch ch-l"></span><span class="ch ch-r"></span>
+        <span class="ch-dot"></span>
+        <div id="hitmarker"><i></i><i></i><i></i><i></i></div>
+      </div>
+
+      <div id="killfeed"></div>
+
+      <div id="wave-banner" class="hidden">
+        <div class="wb-kicker">HOSTILES INBOUND</div>
+        <div class="wb-title">WAVE <span id="wb-wave">01</span></div>
+        <div class="wb-sub" id="wb-sub">ADVANCE AND SECURE</div>
+      </div>
+
+      <aside id="minimap-wrap">
+        <canvas id="minimap" width="188" height="188"></canvas>
+        <div class="mm-label">SECTOR 7 · COMPOUND</div>
+      </aside>
+
+      <section id="vitals">
+        <div class="vital-label"><span>OPERATOR</span><span id="health-value">100</span></div>
+        <div class="health-track"><div id="health-fill"></div></div>
+        <div class="stamina-track"><div id="stamina-fill"></div></div>
+        <div class="vital-foot"><span>ARMOR</span><span id="armor-value">50</span></div>
+      </section>
+
+      <section id="ammo">
+        <div class="weapon-name">VK-74 <span>ASSAULT RIFLE</span></div>
+        <div class="ammo-line">
+          <span id="ammo-mag">30</span><span class="ammo-sep">/</span><span id="ammo-reserve">210</span>
+        </div>
+        <div class="fire-mode" id="fire-mode">AUTO</div>
+        <div class="grenades">FRAG <b id="grenade-count">3</b> · <span style="opacity:.6">[G]</span></div>
+      </section>
+
+      <div id="score-strip">
+        <div><span class="ss-label">SCORE</span><span id="score-value">0</span></div>
+        <div><span class="ss-label">KILLS</span><span id="kills-value">0</span></div>
+        <div><span class="ss-label">ACCURACY</span><span id="acc-value">0%</span></div>
+      </div>
+
+      <div id="interact-hint" class="hidden"><span class="key">E</span> <span id="interact-text">RELOAD</span></div>
+
+      <div id="reload-hint" class="hidden">
+        <div class="rh-label">RELOADING</div>
+        <div class="rh-track"><div id="rh-fill"></div></div>
+      </div>
+
+      <div id="low-health"></div>
+
+      <div id="subtitles">
+        <div id="subtitle-line"></div>
+      </div>
+    </div>
+
+    <div id="menu" class="screen">
+      <div class="menu-bg"></div>
+      <div class="menu-top">
+        <div class="menu-brand">BREACH<span>POINT</span></div>
+        <div class="menu-tag">TACTICAL FIRST-PERSON COMBAT</div>
+      </div>
+
+      <div class="menu-main">
+        <div class="menu-kicker">CLASSIFIED // OPERATION NIGHTFALL</div>
+        <h1>HOLD THE<br /><em>COMPOUND</em></h1>
+        <p class="menu-desc">
+          A private military compound has gone dark. You are the breach element.
+          Hold Sector 7 against five escalating waves of hostiles and extract.
+        </p>
+        <div class="menu-actions">
+          <button id="deploy" class="btn-primary">
+            <span class="btn-label">DEPLOY</span>
+            <span class="btn-sub">CLICK TO ENGAGE</span>
+          </button>
+          <button id="howto" class="btn-ghost">BRIEFING</button>
+        </div>
+        <div class="menu-loadout">
+          <div class="loadout-item"><span class="lo-key">PRIMARY</span><span class="lo-val">VK-74 ASSAULT RIFLE</span></div>
+          <div class="loadout-item"><span class="lo-key">OPTIC</span><span class="lo-val">HOLO / 1.5×</span></div>
+          <div class="loadout-item"><span class="lo-key">ARMOR</span><span class="lo-val">PLATE CARRIER MK.III</span></div>
+        </div>
+      </div>
+
+      <div class="menu-side">
+        <div class="brief">
+          <div class="brief-title">MISSION BRIEF</div>
+          <ul>
+            <li><b>01</b> Clear hostiles from the compound.</li>
+            <li><b>02</b> Survive five waves without dying.</li>
+            <li><b>03</b> Headshots deal critical damage.</li>
+            <li><b>04</b> Health regenerates out of combat.</li>
+          </ul>
+        </div>
+        <div class="controls">
+          <div class="ctrl"><kbd>WASD</kbd><span>MOVE</span></div>
+          <div class="ctrl"><kbd>SHIFT</kbd><span>SPRINT</span></div>
+          <div class="ctrl"><kbd>CTRL</kbd><span>CROUCH</span></div>
+          <div class="ctrl"><kbd>SPACE</kbd><span>JUMP</span></div>
+          <div class="ctrl"><kbd>LMB</kbd><span>FIRE</span></div>
+          <div class="ctrl"><kbd>RMB</kbd><span>AIM</span></div>
+          <div class="ctrl"><kbd>R</kbd><span>RELOAD</span></div>
+          <div class="ctrl"><kbd>G</kbd><span>FRAG</span></div>
+          <div class="ctrl"><kbd>F</kbd><span>LIGHT</span></div>
+          <div class="ctrl"><kbd>ESC</kbd><span>PAUSE</span></div>
+        </div>
+      </div>
+
+      <div class="menu-footer">
+        <span>THREE.JS · REAL-TIME RENDER</span>
+        <span>BUILD 1.0.0</span>
+      </div>
+    </div>
+
+    <div id="pause" class="screen hidden">
+      <div class="pause-card">
+        <div class="pause-kicker">OPERATION SUSPENDED</div>
+        <h2>PAUSED</h2>
+        <p>Resume the operation when ready. The compound is still hot.</p>
+        <button id="resume" class="btn-primary"><span class="btn-label">RESUME</span><span class="btn-sub">RETURN TO COMBAT</span></button>
+        <button id="restart" class="btn-ghost">RESTART OPERATION</button>
+      </div>
+    </div>
+
+    <div id="dead" class="screen hidden">
+      <div class="dead-card">
+        <div class="dead-kicker">OPERATOR DOWN</div>
+        <h2>KIA</h2>
+        <div class="dead-stats">
+          <div><span>WAVES CLEARED</span><b id="dead-waves">0</b></div>
+          <div><span>HOSTILES ELIMINATED</span><b id="dead-kills">0</b></div>
+          <div><span>FINAL SCORE</span><b id="dead-score">0</b></div>
+        </div>
+        <button id="redeploy" class="btn-primary"><span class="btn-label">REDEPLOY</span><span class="btn-sub">RESTART OPERATION</span></button>
+      </div>
+    </div>
+
+    <div id="win" class="screen hidden">
+      <div class="win-card">
+        <div class="win-kicker">COMPOUND SECURED</div>
+        <h2>EXTRACTION READY</h2>
+        <div class="dead-stats">
+          <div><span>WAVES CLEARED</span><b>5 / 5</b></div>
+          <div><span>HOSTILES ELIMINATED</span><b id="win-kills">0</b></div>
+          <div><span>FINAL SCORE</span><b id="win-score">0</b></div>
+        </div>
+        <button id="again" class="btn-primary"><span class="btn-label">RE-DEPLOY</span><span class="btn-sub">NEW OPERATION</span></button>
+      </div>
+    </div>
+
+    <div id="loading">
+      <div class="load-mark"></div>
+      <div class="load-text">PREPARING DROP ZONE</div>
+      <div class="load-track"><div class="load-fill"></div></div>
+    </div>
+  </div>
+</body>
+</html>
